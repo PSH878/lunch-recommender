@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>오늘 뭐 먹지? | 스마트 점심 메뉴 추천기</title>
+  <meta name="description" content="C++ LunchRecommender 기반 반응형 점심 메뉴 추천 웹 애플리케이션">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- 상단 네비게이션 / 헤더 -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="brand">
+          <span class="brand-badge">C++ Engine</span>
+          <h1 class="brand-title">
+            <span class="brand-icon">🍱</span>
+            오늘 뭐 먹지?
+          </h1>
+          <p class="brand-subtitle">결정 장애를 위한 스마트 점심 메뉴 추천기</p>
+        </div>
+        <div class="header-actions">
+          <button id="soundToggleBtn" class="icon-btn" title="효과음 토글" aria-label="효과음 켜기/끄기">
+            <span class="icon" id="soundIcon">🔊</span>
+          </button>
+          <button id="themeToggleBtn" class="icon-btn" title="다크/라이트 모드 전환" aria-label="테마 전환">
+            <span class="icon" id="themeIcon">🌙</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- 1. 카테고리 선택 영역 -->
+      <section class="section category-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="num-badge">1</span>
+            음식 카테고리 선택
+          </h2>
+          <span class="badge-total" id="totalMenuCount">총 64종 메뉴</span>
+        </div>
+
+        <div class="category-grid" role="radiogroup" aria-label="음식 카테고리">
+          <!-- 전체 랜덤 -->
+          <button type="button" class="category-card active" data-category="0" role="radio" aria-checked="true">
+            <div class="card-icon-wrap all-icon">
+              <span class="card-emoji">🎲</span>
+            </div>
+            <div class="card-info">
+              <span class="card-name">전체 랜덤</span>
+              <span class="card-count" id="count-all">64종</span>
+            </div>
+            <div class="active-check">✓</div>
+          </button>
+
+          <!-- 1. 한식 -->
+          <button type="button" class="category-card" data-category="1" role="radio" aria-checked="false">
+            <div class="card-icon-wrap korean-icon">
+              <span class="card-emoji">🍚</span>
+            </div>
+            <div class="card-info">
+              <div class="card-title-row">
+                <span class="card-name">한식</span>
+                <span class="cpp-tag">case 1</span>
+              </div>
+              <span class="card-count" id="count-1">16종</span>
+            </div>
+            <div class="active-check">✓</div>
+          </button>
+
+          <!-- 2. 중식 -->
+          <button type="button" class="category-card" data-category="2" role="radio" aria-checked="false">
+            <div class="card-icon-wrap chinese-icon">
+              <span class="card-emoji">🥟</span>
+            </div>
+            <div class="card-info">
+              <div class="card-title-row">
+                <span class="card-name">중식</span>
+                <span class="cpp-tag">case 2</span>
+              </div>
+              <span class="card-count" id="count-2">16종</span>
+            </div>
+            <div class="active-check">✓</div>
+          </button>
+
+          <!-- 3. 일식 -->
+          <button type="button" class="category-card" data-category="3" role="radio" aria-checked="false">
+            <div class="card-icon-wrap japanese-icon">
+              <span class="card-emoji">🍣</span>
+            </div>
+            <div class="card-info">
+              <div class="card-title-row">
+                <span class="card-name">일식</span>
+                <span class="cpp-tag">case 3</span>
+              </div>
+              <span class="card-count" id="count-3">16종</span>
+            </div>
+            <div class="active-check">✓</div>
+          </button>
+
+          <!-- 4. 양식 -->
+          <button type="button" class="category-card" data-category="4" role="radio" aria-checked="false">
+            <div class="card-icon-wrap western-icon">
+              <span class="card-emoji">🍕</span>
+            </div>
+            <div class="card-info">
+              <div class="card-title-row">
+                <span class="card-name">양식</span>
+                <span class="cpp-tag">case 4</span>
+              </div>
+              <span class="card-count" id="count-4">16종</span>
+            </div>
+            <div class="active-check">✓</div>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. 메인 추천 슬롯머신 / 룰렛 섹션 -->
+      <section class="section roulette-section">
+        <div class="slot-machine-card">
+          <div class="slot-display-container">
+            <div class="category-indicator">
+              <span class="indicator-dot"></span>
+              <span id="currentCategoryText">선택: 전체 랜덤 (64종 대상)</span>
+            </div>
+
+            <!-- 롤링 슬롯 디스플레이 -->
+            <div class="slot-window" id="slotWindow">
+              <div class="slot-roller" id="slotRoller">
+                <div class="slot-item initial-state">
+                  <span class="slot-emoji">🍽️</span>
+                  <span class="slot-text">오늘의 운명적인 점심은?</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 결과 표시 오버레이/상태 박스 -->
+            <div class="result-box hidden" id="resultBox">
+              <div class="result-badge-wrap">
+                <span class="result-category-badge" id="resultCategoryBadge">한식</span>
+                <span class="result-tag" id="resultSubTag">✨ 오늘의 강력 추천!</span>
+              </div>
+              <div class="result-food-name" id="resultFoodName">김치찌개</div>
+              <div class="result-desc" id="resultDesc">칼칼하고 든든한 국물로 하루 피로를 싹 날려보세요!</div>
+
+              <!-- 지도 바로가기 버튼들 -->
+              <div class="map-actions">
+                <a id="naverMapLink" href="#" target="_blank" rel="noopener noreferrer" class="map-btn naver">
+                  <span class="map-icon">🟢</span> 네이버 지도에서 찾기
+                </a>
+                <a id="kakaoMapLink" href="#" target="_blank" rel="noopener noreferrer" class="map-btn kakao">
+                  <span class="map-icon">🟡</span> 카카오맵에서 찾기
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 추천 버튼 컨트롤 -->
+          <div class="slot-controls">
+            <button type="button" id="recommendBtn" class="recommend-btn">
+              <span class="btn-glow"></span>
+              <span class="btn-icon">⚡</span>
+              <span class="btn-text">메뉴 추천받기</span>
+            </button>
+            <button type="button" id="reRollBtn" class="reroll-btn hidden" title="다시 뽑기">
+              <span>🔄 다시 추천</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 메뉴 목록 & 탐색 탭 섹션 -->
+      <section class="section menu-explorer-section">
+        <div class="section-header flex-between">
+          <div class="header-left">
+            <h2 class="section-title">
+              <span class="num-badge">2</span>
+              메뉴 사전 & 후보 관리
+            </h2>
+            <p class="section-desc">C++ LunchRecommender의 원본 데이터베이스</p>
+          </div>
+          <div class="header-actions-inline">
+            <button type="button" id="openAddModalBtn" class="pill-btn primary">
+              <span>➕ 메뉴 추가</span>
+            </button>
+            <button type="button" id="resetMenuBtn" class="pill-btn secondary" title="초기 C++ 원본 데이터로 복원">
+              <span>↺ 초기화</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 필터 탭 & 검색 -->
+        <div class="explorer-toolbar">
+          <div class="filter-tabs">
+            <button type="button" class="tab-btn active" data-tab="all">전체 (<span id="tabCountAll">64</span>)</button>
+            <button type="button" class="tab-btn" data-tab="1">한식 (<span id="tabCount1">16</span>)</button>
+            <button type="button" class="tab-btn" data-tab="2">중식 (<span id="tabCount2">16</span>)</button>
+            <button type="button" class="tab-btn" data-tab="3">일식 (<span id="tabCount3">16</span>)</button>
+            <button type="button" class="tab-btn" data-tab="4">양식 (<span id="tabCount4">16</span>)</button>
+          </div>
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="menuSearchInput" placeholder="메뉴 이름 검색..." autocomplete="off">
+            <button type="button" id="clearSearchBtn" class="clear-btn hidden">&times;</button>
+          </div>
+        </div>
+
+        <!-- 메뉴 카드 그리드 -->
+        <div class="menu-chip-grid" id="menuChipGrid">
+          <!-- 동적 렌더링 영역 -->
+        </div>
+      </section>
+
+      <!-- 4. 추천 히스토리 및 C++ 로직 뷰어 -->
+      <section class="section bottom-grid-section">
+        <!-- 히스토리 박스 -->
+        <div class="info-card history-card">
+          <div class="card-header-row">
+            <h3 class="card-heading">
+              <span>🕒</span> 최근 추천 기록
+            </h3>
+            <button type="button" id="clearHistoryBtn" class="text-btn">기록 지우기</button>
+          </div>
+          <div class="history-list" id="historyList">
+            <div class="empty-state">아직 추천 기록이 없습니다. 버튼을 눌러보세요!</div>
+          </div>
+        </div>
+
+        <!-- C++ 소스코드 뷰어 카드 -->
+        <div class="info-card cpp-info-card">
+          <div class="card-header-row">
+            <h3 class="card-heading">
+              <span>⚙️</span> C++ 소스코드 구조 분석
+            </h3>
+            <span class="badge-tech">C++11 STL</span>
+          </div>
+          <div class="cpp-code-tabs">
+            <button type="button" class="code-tab active" data-code="main">main.cpp</button>
+            <button type="button" class="code-tab" data-code="cpp">LunchRecommender.cpp</button>
+            <button type="button" class="code-tab" data-code="h">LunchRecommender.h</button>
+          </div>
+          <div class="code-viewer-wrap">
+            <pre><code id="codeSnippet" class="language-cpp">// 로딩 중...</code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="app-footer">
+      <div class="footer-inner">
+        <p><strong>C++ LunchRecommender Project</strong> &bull; Responsive Interactive Web Visualization</p>
+        <p class="copyright">Built with Vanilla HTML5, CSS3, ES6+ &bull; Mobile & Desktop Ready</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 메뉴 추가 모달 -->
+  <div class="modal-backdrop hidden" id="addModalBackdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">새로운 메뉴 등록</h3>
+        <button type="button" class="close-modal-btn" id="closeAddModalBtn">&times;</button>
+      </div>
+      <form id="addMenuForm">
+        <div class="form-group">
+          <label for="newCategorySelect">카테고리</label>
+          <select id="newCategorySelect" required>
+            <option value="1">한식 (Korean)</option>
+            <option value="2">중식 (Chinese)</option>
+            <option value="3">일식 (Japanese)</option>
+            <option value="4">양식 (Western)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="newMenuName">메뉴 이름</label>
+          <input type="text" id="newMenuName" placeholder="예: 팟타이, 순대국밥 등" required maxlength="20">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="pill-btn secondary" id="cancelAddModalBtn">취소</button>
+          <button type="submit" class="pill-btn primary">추가하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 축하 캔버스 (폭죽 / Confetti) -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
